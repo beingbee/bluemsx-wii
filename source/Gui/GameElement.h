@@ -14,10 +14,12 @@ public:
     GameElement(GameElement* parent);
     virtual ~GameElement();
 
+    void Set240p(bool display);
     void SetName(const char *str);
     void SetCommandLine(const char *str);
     void SetScreenShot(int number, const char *str);
     void SetKeyMapping(KEY key, int event);
+    bool Get240p();
     char *GetName();
     char *GetCommandLine();
     char *GetScreenShot(int number);
@@ -26,6 +28,7 @@ public:
     Image* GetImage(int number);
     GameElement *next;
 private:
+    bool display_240p;
     char *name;
     char *cmdline;
     char *screenshot[2];

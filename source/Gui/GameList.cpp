@@ -84,6 +84,9 @@ void XMLCALL GameList::startElement(void *userData, const char *name, const char
                     my->current_element->SetKeyMapping(KEY_JOY2_LEFT, EC_JOY1_LEFT);
                     my->current_element->SetKeyMapping(KEY_JOY2_RIGHT, EC_JOY1_RIGHT);
                 }
+                if ( strcmp("Display240p", key) == 0 && strcmp("true", val) == 0 ) {
+                    my->current_element->Set240p(true);
+                }
             }
         }
         break;

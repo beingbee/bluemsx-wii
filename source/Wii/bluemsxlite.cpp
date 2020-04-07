@@ -284,7 +284,7 @@ void RenderEmuImage(void *dpyData)
         }
 
         videoRender(video, frameBuffer, bitDepth, zoom,
-                    dpyData, 0, displayPitch, -1);
+                    dpyData, 0, displayPitch, -1, manager->GetHeight());
         DCFlushRange(dpyData, TEX_WIDTH * TEX_HEIGHT * 2);
     }
 }
@@ -292,6 +292,7 @@ void RenderEmuImage(void *dpyData)
 static void blueMsxRun(GameElement *game, char *game_dir)
 {
     int i;
+    int height_base;
 
     // Loading message
     msgbox->Show("Loading...");
@@ -306,7 +307,7 @@ static void blueMsxRun(GameElement *game, char *game_dir)
 #if FORCE_50HZ
     properties->emulation.vdpSyncMode = P_VDP_SYNC50HZ;
 #else
-    if( manager->GetMode() == GW_VIDEO_MODE_NTSC_440 ) {
+    if( manager->GetMode() == GW_VIDEO_MODE_NTSC_440 || manager->GetMode() == GW_VIDEO_MODE_NTSC_220  ) {
         properties->emulation.vdpSyncMode = P_VDP_SYNC60HZ;
     }else{
         properties->emulation.vdpSyncMode = P_VDP_SYNCAUTO;
@@ -319,6 +320,7 @@ static void blueMsxRun(GameElement *game, char *game_dir)
     printf("Command line : '%s'\n", game->GetCommandLine());
     printf("Screen shot 1: '%s'\n", game->GetScreenShot(0));
     printf("Screen shot 2: '%s'\n", game->GetScreenShot(1));
+    printf("Display 240p : %s\n", (game->Get240p())?"true":"false");
 
     // Init keyboard and remap keys
     keyboardReset();
@@ -335,6 +337,8 @@ static void blueMsxRun(GameElement *game, char *game_dir)
     printf("CommandLine  : %s\n", commandLine);
     printf("Directory    : %s\n", game_dir);
     printf("Starting emulator...\n");
+
+
     i = emuTryStartWithArguments(properties, commandLine, game_dir);
     if (i < 0) {
         printf("Failed to parse command line\n");
@@ -345,6 +349,11 @@ static void blueMsxRun(GameElement *game, char *game_dir)
         emulatorStart(NULL);
     }
     printf("Emulator running...\n");
+
+    GW_VIDEO_MODE prevVideo = manager->GetMode();
+
+    if (game->Get240p()) 
+        manager->SetMode(GW_VIDEO_MODE_NTSC_220);
 
     msgbox->Remove();
     manager->Lock();
@@ -357,7 +366,8 @@ static void blueMsxRun(GameElement *game, char *game_dir)
     emuSpr->SetStretchHeight(1.0f);
     emuSpr->SetRefPixelPositioning(REFPIXEL_POS_PIXEL);
     emuSpr->SetRefPixelPosition(0, 0);
-    emuSpr->SetPosition(0, ((int)manager->GetHeight()-480)/2);
+    height_base = (manager->GetHeight()>240)?480:240;
+    emuSpr->SetPosition(0, ((int)manager->GetHeight()-height_base)/2);
     manager->AddTop(emuSpr, 90);
     manager->Unlock();
 
@@ -377,10 +387,9 @@ static void blueMsxRun(GameElement *game, char *game_dir)
     };
     int refresh = 0;
     bool pressed = true;
-    GW_VIDEO_MODE prevVideo = manager->GetMode();
     bool doQuit = false;
     while(!doQuit) {
-        if( prevVideo != GW_VIDEO_MODE_NTSC_440 ) {
+        if( manager->GetMode() != GW_VIDEO_MODE_NTSC_220 && prevVideo != GW_VIDEO_MODE_NTSC_440 ) {
             int newrfsh = boardGetRefreshRate();
             if( newrfsh != 0 && newrfsh != refresh ) {
                 if( newrfsh==50 ) {

@@ -81,7 +81,7 @@ void videoSetRgbMode(Video* video, int inverted);
 
 void videoSetPalMode(Video* video, VideoPalMode palMode);
 
-int videoRender(Video* video, FrameBuffer* frameBuffer, int bitDepth, int zoom, void* pDst, int dstOffset, int dstPitch, int canChangeZoom);
+int videoRender(Video* video, FrameBuffer* frameBuffer, int bitDepth, int zoom, void* pDst, int dstOffset, int dstPitch, int canChangeZoom, unsigned int  display_height);
 
 void videoSetColors(Video* video, int saturation, int brightness, int contrast, int gamma);
 

@@ -16,7 +16,8 @@ namespace wsp{
         GW_VIDEO_MODE_PAL50_528,
         GW_VIDEO_MODE_PAL50_440,
         GW_VIDEO_MODE_PAL60_440,
-        GW_VIDEO_MODE_NTSC_440
+        GW_VIDEO_MODE_NTSC_440,
+        GW_VIDEO_MODE_NTSC_220
     } GW_VIDEO_MODE;
     //!Basic rendering unit.
     class GameWindow{
