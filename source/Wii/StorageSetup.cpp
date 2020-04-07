@@ -33,7 +33,7 @@
 #include "gamepack.inc"
 #endif
 #include "ZipFromMem.h"
-#include "ZipHelper.h"
+#include "ziphelper.h"
 
 extern "C" {
 #include "ArchThread.h"

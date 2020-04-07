@@ -6,7 +6,7 @@
 #include <wiiuse/wpad.h>
 
 extern "C" {
-#include "../iodevice/led.h"
+#include "../IoDevice/Led.h"
 }
 
 #include "InputEvent.h"

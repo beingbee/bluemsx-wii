@@ -11,7 +11,8 @@ extern "C" {
 #include "ArchGlob.h"
 #include "ArchThread.h"
 #include "FileHistory.h"
-#include "ZipHelper.h"
+//#include "ZipHelper.h"
+#include "ziphelper.h"
 }
 
 // Resources
