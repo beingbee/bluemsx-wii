@@ -36,9 +36,9 @@
 #include <ogc/lwp_watchdog.h>
 
 #include "kbdlib.h"
-#include "../iodevice/led.h"
-#include "../wiiusbkeyboard/keyboard.h"
-#include "../wiiusbkeyboard/wsksymdef.h"
+#include "../IoDevice/Led.h"
+#include "../WiiUsbKeyboard/keyboard.h"
+#include "../WiiUsbKeyboard/wsksymdef.h"
 
 #ifndef PI
 #define PI 3.14159265358979323846

@@ -27,6 +27,14 @@ export PATH := $(DEVKITPPC_LOCAL)/bin:$(PATH_BACKUP)
 # Get 'build number' from git
 BUILD_NUMBER := $(shell git rev-list --all --count)
 
+UNAME := $(shell uname -s)
+
+ifeq ($(UNAME), Linux)
+export UTIL_PATH :=
+else
+export UTIL_PATH := $(PWD)/util/
+endif
+
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
 # BUILD is the directory where object files & intermediate files will be placed
@@ -223,14 +231,15 @@ revision: revision_new
 sdcard.inc: ../sdcard/MSX
 	@echo Creating sdcard.zip ...
 	@rm -f sdcard.zip
-	@../util/7za a -r -xr!*.svn -xr!thumbs.* sdcard.zip ../sdcard/MSX
+	@$(UTIL_PATH)7za a -r -xr!*.svn -xr!thumbs.* sdcard.zip ../sdcard/MSX
 	@echo Converting sdcard.zip to sdcard.inc ...
 	@../util/raw2c sdcard.zip sdcard.inc sdcard
+	echo Done
 
 gamepack.inc: ../sdcard/Gamepack
 	@echo Creating gamepack.zip ...
 	@rm -f gamepack.zip
-	@../util/7za a -r -xr!*.svn -xr!thumbs.* gamepack.zip ../sdcard/Gamepack/Games
+	@$(UTIL_PATH)7za a -r -xr!*.svn -xr!thumbs.* gamepack.zip ../sdcard/Gamepack/Games
 	@echo Converting gamepack.zip to gamepack.inc ...
 	@../util/raw2c gamepack.zip gamepack.inc gamepack
 
@@ -240,11 +249,11 @@ gamepack.inc: ../sdcard/Gamepack
 $(DEVKITPPC_LOCAL)/devkitppc.log: ../lib/devkitPPC.zip
 	@echo Installing devkitPPC to $(DEVKITPPC_LOCAL)
 	@[ -d $(DEVKITPPC_LOCAL) ] || mkdir -p $(DEVKITPPC_LOCAL)
-	@../util/unzip -o ../lib/devkitPPC.zip -d $(DEVKITPPC_LOCAL) >$(DEVKITPPC_LOCAL)/devkitppc.log
+	@$(UTIL_PATH)unzip -o ../lib/devkitPPC.zip -d $(DEVKITPPC_LOCAL) >$(DEVKITPPC_LOCAL)/devkitppc.log
 $(LIBOGC_LOCAL)/libogc.log: ../lib/libogc.zip
 	@echo Installing libogc to $(LIBOGC_LOCAL)
 	@[ -d $(LIBOGC_LOCAL) ] || mkdir -p $(LIBOGC_LOCAL)
-	@../util/unzip -o ../lib/libogc.zip -d $(LIBOGC_LOCAL) >$(LIBOGC_LOCAL)/libogc.log
+	@$(UTIL_PATH)unzip -o ../lib/libogc.zip -d $(LIBOGC_LOCAL) >$(LIBOGC_LOCAL)/libogc.log
 
 #---------------------------------------------------------------------------------
 # This rule converts .png to .inc files
