@@ -16,6 +16,7 @@ GameElement::GameElement()
     next = NULL;
     name = NULL;
     cmdline = NULL;
+    display_240p = false;
     screenshot[0] = NULL;
     screenshot[1] = NULL;
     image[0] = NULL;
@@ -32,6 +33,7 @@ GameElement::GameElement(GameElement *parent)
     screenshot[1] = NULL;
     image[0] = NULL;
     image[1] = NULL;
+    display_240p = parent->display_240p;
     if( parent->name != NULL ) name = strdup(parent->name);
     if( parent->cmdline != NULL ) cmdline = strdup(parent->cmdline);
     if( parent->screenshot[0] != NULL ) screenshot[0] = strdup(parent->screenshot[0]);
@@ -81,9 +83,19 @@ void GameElement::SetScreenShot(int number, const char *str)
     }
 }
 
+void GameElement::Set240p(bool display)
+{
+    display_240p = display;
+}
+
 void GameElement::SetKeyMapping(KEY key, int event)
 {
     key_map[key] = event;
+}
+
+bool GameElement::Get240p()
+{
+    return display_240p;
 }
 
 char* GameElement::GetName()

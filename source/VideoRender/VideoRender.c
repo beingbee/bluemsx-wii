@@ -41,12 +41,13 @@
 static UInt16 empty_line_buffer[FB_MAX_LINE_WIDTH];
 
 static int videoRender240(Video* pVideo, FrameBuffer* frame, int bitDepth, int zoom,
-                          void* pDst, int dstOffset, int dstPitch, int canChangeZoom)
+                          void* pDst, int dstOffset, int dstPitch, int canChangeZoom, unsigned int display_height)
 {
     UInt16* pDst1;
     int height          = frame->lines;
     int srcWidth        = frame->maxWidth;
     int h;
+    int height_inc = (display_height<=240)?4:2;
 
     //dstOffset = (dstOffset & ~3) << 2;
     pDst = (char*)pDst;// + zoom * dstOffset;
@@ -54,13 +55,19 @@ static int videoRender240(Video* pVideo, FrameBuffer* frame, int bitDepth, int z
 
     dstPitch /= (int)sizeof(UInt16);
 
-    for (h = 0; h < height; h+=2) {
+    for (h = 0; h < height; h+=height_inc) {
         UInt16* pDst1old = pDst1;
         UInt16* pSrc1;
         UInt16* pSrc2;
         UInt16* pSrc3;
         UInt16* pSrc4;
-        if (frame->interlace != INTERLACE_ODD) {
+
+        if (height_inc == 4) {
+            pSrc1 = frame->line[h].buffer;
+            pSrc2 = frame->line[h+1].buffer;
+            pSrc3 = frame->line[h+2].buffer;
+            pSrc4 = frame->line[h+3].buffer;
+        }else if (frame->interlace != INTERLACE_ODD) {
             pSrc1 = frame->line[h].buffer;
             pSrc2 = frame->line[h].buffer;
             pSrc3 = frame->line[h+1].buffer;
@@ -138,7 +145,7 @@ static int videoRender240(Video* pVideo, FrameBuffer* frame, int bitDepth, int z
 }
 
 static int videoRender480(Video* pVideo, FrameBuffer* frame, int bitDepth, int zoom,
-                          void* pDst, int dstOffset, int dstPitch, int canChangeZoom)
+                          void* pDst, int dstOffset, int dstPitch, int canChangeZoom, unsigned int display_height )
 {
     UInt16* pDst1;
     int height          = frame->lines;
@@ -231,7 +238,7 @@ static int videoRender480(Video* pVideo, FrameBuffer* frame, int bitDepth, int z
 */
 
 int videoRender(Video* pVideo, FrameBuffer* frame, int bitDepth, int zoom,
-                void* pDst, int dstOffset, int dstPitch, int canChangeZoom)
+                void* pDst, int dstOffset, int dstPitch, int canChangeZoom,unsigned int  display_height)
 {
     if (frame == NULL) {
         return zoom;
@@ -242,10 +249,10 @@ int videoRender(Video* pVideo, FrameBuffer* frame, int bitDepth, int zoom,
     }
 
     if (frame->lines <= 240) {
-        zoom = videoRender240(pVideo, frame, bitDepth, zoom, pDst, dstOffset, dstPitch, canChangeZoom);
+        zoom = videoRender240(pVideo, frame, bitDepth, zoom, pDst, dstOffset, dstPitch, canChangeZoom, display_height);
     }
     else {
-        zoom = videoRender480(pVideo, frame, bitDepth, zoom, pDst, dstOffset, dstPitch, canChangeZoom);
+        zoom = videoRender480(pVideo, frame, bitDepth, zoom, pDst, dstOffset, dstPitch, canChangeZoom, display_height);
     }
     return zoom;
 }

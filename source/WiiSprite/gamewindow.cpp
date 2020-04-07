@@ -53,6 +53,10 @@ namespace wsp{
                 _rmode = &TVNtsc480IntDf;
                 yoffset = 20;
                 break;
+            case GW_VIDEO_MODE_NTSC_220:
+                _rmode = &TVNtsc240Ds;
+                yoffset = 10;
+                break;
             default:
                 return;
         }
@@ -76,6 +80,9 @@ namespace wsp{
             _mode == GW_VIDEO_MODE_NTSC_440) {
             _height = 440;
         }
+        if ( _mode == GW_VIDEO_MODE_NTSC_220 )
+            _height = 220;
+
 
         // Init GX (once)
         if(_first == true){
