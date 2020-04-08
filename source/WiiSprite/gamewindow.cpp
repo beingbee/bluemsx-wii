@@ -93,7 +93,7 @@ namespace wsp{
         }
 
         // Set our background
-        GXColor background = {0x00, 0x00, 0x00, 0x00};
+        GXColor background = {0x00, 0x00, 0x00, 0xff};
         GX_SetCopyClear(background, 0x00ffffff);
 
         // Set up the display
@@ -104,7 +104,7 @@ namespace wsp{
         GX_SetScissor(0, 0, _rmode->fbWidth, _rmode->efbHeight);
         GX_SetDispCopySrc(0, 0, _rmode->fbWidth, _rmode->efbHeight);
         GX_SetDispCopyDst(_rmode->fbWidth, xfbHeight);
-        GX_SetCopyFilter(_rmode->aa, _rmode->sample_pattern, GX_TRUE, _rmode->vfilter);
+        GX_SetCopyFilter(_rmode->aa, _rmode->sample_pattern, (_mode!=GW_VIDEO_MODE_NTSC_220)?GX_TRUE:GX_FALSE, _rmode->vfilter);
 
         // Some additional Init code
         GX_SetFieldMode(_rmode->field_rendering, ((_rmode->viHeight == 2*_rmode->xfbHeight)?GX_ENABLE:GX_DISABLE));
