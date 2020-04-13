@@ -17,6 +17,7 @@ GameElement::GameElement()
     name = NULL;
     cmdline = NULL;
     display_240p = false;
+    config_240p = CONFIG_240P_NONE;
     screenshot[0] = NULL;
     screenshot[1] = NULL;
     image[0] = NULL;
@@ -34,6 +35,7 @@ GameElement::GameElement(GameElement *parent)
     image[0] = NULL;
     image[1] = NULL;
     display_240p = parent->display_240p;
+    config_240p = parent->config_240p;
     if( parent->name != NULL ) name = strdup(parent->name);
     if( parent->cmdline != NULL ) cmdline = strdup(parent->cmdline);
     if( parent->screenshot[0] != NULL ) screenshot[0] = strdup(parent->screenshot[0]);
@@ -82,6 +84,17 @@ void GameElement::SetScreenShot(int number, const char *str)
         }
     }
 }
+
+void GameElement::Set240pConfig(int config)
+{
+    config_240p = config;
+}
+
+int GameElement::Get240pConfig(void)
+{
+    return config_240p;
+}
+
 
 void GameElement::Set240p(bool display)
 {

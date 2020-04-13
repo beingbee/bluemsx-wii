@@ -27,6 +27,7 @@ namespace wsp{
             //!Destructor. Does call StopVideo() automatically.
             virtual ~GameWindow();
 
+            void SetMode240p(void);
             void SetMode(GW_VIDEO_MODE mode);
             GW_VIDEO_MODE GetMode(void);
 

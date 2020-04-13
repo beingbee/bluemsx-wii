@@ -32,9 +32,32 @@ namespace wsp{
     {
         return _mode;
     }
+
+    void GameWindow::SetMode240p(void){
+		f32 yscale = 0; u32 xfbHeight = 0;
+		GX_SetViewport(0,0,_rmode->fbWidth,_rmode->efbHeight,0,1);
+		yscale = GX_GetYScaleFactor(_rmode->efbHeight,_rmode->xfbHeight);
+		xfbHeight = GX_SetDispCopyYScale(yscale);
+		GX_SetScissor(0,0,_rmode->fbWidth,_rmode->efbHeight);
+		GX_SetDispCopySrc(0,0,_rmode->fbWidth,_rmode->efbHeight);
+		GX_SetDispCopyDst(_rmode->fbWidth,xfbHeight);
+		GX_SetCopyFilter(_rmode->aa,_rmode->sample_pattern,GX_FALSE,_rmode->vfilter);
+		GX_SetFieldMode(GX_DISABLE, GX_ENABLE);
+		GX_Flush();
+
+		VIDEO_Configure(_rmode);
+		VIDEO_Flush();
+		VIDEO_WaitVSync();
+		VIDEO_WaitVSync();
+
+    }
+
+
     void GameWindow::SetMode(GW_VIDEO_MODE mode)
     {
         int yoffset = 0;
+        int double_strike = 0;
+
         if( mode == _mode )
             return;
         switch( mode ) {
@@ -64,6 +87,7 @@ namespace wsp{
 
         // Do some Init work
         VIDEO_SetBlack(false);
+        printf("Set mode: %d\n", mode);
         VIDEO_Configure(_rmode);
         VIDEO_SetNextFramebuffer(_frameBuffer[_fb]);
         VIDEO_Flush();
@@ -80,10 +104,118 @@ namespace wsp{
             _mode == GW_VIDEO_MODE_NTSC_440) {
             _height = 440;
         }
-        if ( _mode == GW_VIDEO_MODE_NTSC_220 )
+        if ( _mode == GW_VIDEO_MODE_NTSC_220 ) {
+            double_strike = 1;
             _height = 220;
+        }
+
+        if ( _mode == GW_VIDEO_MODE_NTSC_220 )  {
+            //SetMode240p();
+            /*
+            f32 yscale = 0; u32 xfbHeight = 0;
+            GX_SetViewport(0,0,_rmode->fbWidth,_rmode->efbHeight,0,1);
+            yscale = GX_GetYScaleFactor(_rmode->efbHeight,_rmode->xfbHeight);
+            xfbHeight = GX_SetDispCopyYScale(yscale);
+            GX_SetScissor(0,0,_rmode->fbWidth,_rmode->efbHeight);
+            GX_SetDispCopySrc(0,0,_rmode->fbWidth,_rmode->efbHeight);
+            GX_SetDispCopyDst(_rmode->fbWidth,xfbHeight);
+            GX_SetCopyFilter(_rmode->aa,_rmode->sample_pattern,GX_FALSE,_rmode->vfilter);
+            GX_SetFieldMode(GX_DISABLE, GX_ENABLE);
+            GX_Flush();
+
+            VIDEO_Configure(_rmode);
+            VIDEO_Flush();
+            VIDEO_WaitVSync();
+            VIDEO_WaitVSync();
+            */
+
+            // Set our background
+            GXColor background = {0x00, 0x00, 0x00, 0xff};
+            GX_SetCopyClear(background, 0x00ffffff);
+
+            // Set up the display
+            f32 yscale = 0; u32 xfbHeight = 0;
+            yscale = GX_GetYScaleFactor(_rmode->efbHeight, _rmode->xfbHeight);
+            xfbHeight = GX_SetDispCopyYScale(yscale);
+            GX_SetViewport(0, 0,_rmode->fbWidth,_rmode->efbHeight, 0, 1);
+            GX_SetScissor(0, 0, _rmode->fbWidth, _rmode->efbHeight);
+            GX_SetDispCopySrc(0, 0, _rmode->fbWidth, _rmode->efbHeight);
+            GX_SetDispCopyDst(_rmode->fbWidth, xfbHeight);
+            GX_SetCopyFilter(_rmode->aa, _rmode->sample_pattern, GX_FALSE, _rmode->vfilter);
+
+            // Some additional Init code
+            GX_SetFieldMode(_rmode->field_rendering, ((_rmode->viHeight == 2*_rmode->xfbHeight)?GX_ENABLE:GX_DISABLE));
+
+            /*
+            if(_rmode->aa){
+                GX_SetPixelFmt(GX_PF_RGB565_Z16, GX_ZC_LINEAR);
+            }else{
+                GX_SetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
+            }
+            */
+            /*
+
+            GX_SetCullMode(GX_CULL_NONE);
+            GX_SetDispCopyGamma(GX_GM_1_0);
+
+            GX_ClearVtxDesc();
+            GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
+            GX_SetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+            GX_SetVtxDesc(GX_VA_CLR0, GX_DIRECT);
+
+            GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XY, GX_F32, 0); // Positions given in 2 f32's (f32 x, f32 y)
+            GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0); // Texture coordinates given in 2 f32's
+            GX_SetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
+
+            GX_SetNumChans(1);
+            GX_SetChanCtrl(GX_COLOR0A0, GX_DISABLE, GX_SRC_REG, GX_SRC_VTX, GX_LIGHTNULL, GX_DF_NONE, GX_AF_NONE);
+
+            GX_SetNumTexGens(1);
+            GX_SetTevOp(GX_TEVSTAGE0, GX_MODULATE);
+            GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
+            GX_SetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);
+
+            GX_InvalidateTexAll();
+            */
+            /* ---------------------- */
+
+            /*
+            Mtx GXmodelView2D;
+            Mtx44 perspective;
+            // Reset the model view matrix
+            guMtxIdentity(GXmodelView2D);
+            guMtxTransApply(GXmodelView2D, GXmodelView2D, 0.0f, 0.0f, -5.0f);
+            // Apply changes to model view matrix
+            GX_LoadPosMtxImm(GXmodelView2D,GX_PNMTX0);
+
+            // Set the viewing matrix to use orthographic projection
+            guOrtho(perspective, 0, _rmode->efbHeight, 0, _rmode->fbWidth, 0, 300);
+
+            // Apply changes to the projection matrix
+            GX_LoadProjectionMtx(perspective, GX_ORTHOGRAPHIC);
+            */
+            
+            
+            /* -------------------------- */
+            GX_SetViewport(0, 0, _rmode->fbWidth, _rmode->efbHeight, 0, 1);
+            GX_SetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_CLEAR);
+            GX_SetAlphaUpdate(GX_TRUE);
+
+            // The final scissor box
+            GX_SetScissorBoxOffset(0, -yoffset);
+            GX_SetScissor(0, 0, _width, _height);
+            
+
+            VIDEO_Configure(_rmode);
+            VIDEO_SetNextFramebuffer(_frameBuffer[_fb]);
+            VIDEO_Flush();
+            VIDEO_WaitVSync();
+            VIDEO_WaitVSync();
 
 
+        }
+        else 
+        {
         // Init GX (once)
         if(_first == true){
             _gp_fifo = memalign(32, DEFAULT_FIFO_SIZE);
@@ -104,7 +236,7 @@ namespace wsp{
         GX_SetScissor(0, 0, _rmode->fbWidth, _rmode->efbHeight);
         GX_SetDispCopySrc(0, 0, _rmode->fbWidth, _rmode->efbHeight);
         GX_SetDispCopyDst(_rmode->fbWidth, xfbHeight);
-        GX_SetCopyFilter(_rmode->aa, _rmode->sample_pattern, (_mode!=GW_VIDEO_MODE_NTSC_220)?GX_TRUE:GX_FALSE, _rmode->vfilter);
+        GX_SetCopyFilter(_rmode->aa, _rmode->sample_pattern, GX_FALSE, _rmode->vfilter);
 
         // Some additional Init code
         GX_SetFieldMode(_rmode->field_rendering, ((_rmode->viHeight == 2*_rmode->xfbHeight)?GX_ENABLE:GX_DISABLE));
@@ -159,6 +291,15 @@ namespace wsp{
         // The final scissor box
         GX_SetScissorBoxOffset(0, -yoffset);
         GX_SetScissor(0, 0, _width, _height);
+
+        VIDEO_Configure(_rmode);
+        VIDEO_SetNextFramebuffer(_frameBuffer[_fb]);
+        VIDEO_Flush();
+        VIDEO_WaitVSync();
+        VIDEO_WaitVSync();
+
+        }
+
     }
 
     void GameWindow::InitVideo(){

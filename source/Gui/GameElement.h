@@ -5,6 +5,10 @@
 #include "expat.h"
 #include "kbdlib.h"
 
+#define CONFIG_240P_NONE 0
+#define CONFIG_240P_ENABLE 1
+#define CONFIG_240P_DISABLE (-1)
+
 using namespace wsp;
 
 class GameElement
@@ -19,6 +23,8 @@ public:
     void SetCommandLine(const char *str);
     void SetScreenShot(int number, const char *str);
     void SetKeyMapping(KEY key, int event);
+    void Set240pConfig(int config);
+    int Get240pConfig(void);
     bool Get240p();
     char *GetName();
     char *GetCommandLine();
@@ -29,6 +35,7 @@ public:
     GameElement *next;
 private:
     bool display_240p;
+    int config_240p;
     char *name;
     char *cmdline;
     char *screenshot[2];

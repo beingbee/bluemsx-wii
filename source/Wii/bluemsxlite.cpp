@@ -283,6 +283,13 @@ void RenderEmuImage(void *dpyData)
     }
 }
 
+static void process_240p_config(GameElement *game)
+{
+    if( (properties->video.display240p||game->Get240pConfig() == CONFIG_240P_ENABLE) &&
+          game->Get240pConfig() != CONFIG_240P_DISABLE )
+        game->Set240p(true);
+}
+
 static void blueMsxRun(GameElement *game, char *game_dir)
 {
     int i;
@@ -295,8 +302,9 @@ static void blueMsxRun(GameElement *game, char *game_dir)
     archSetCurrentDirectory(GetMSXRootPath());
 
     // Reset properties
-    propInitDefaults(properties, 0, P_KBD_EUROPEAN, 0, "");
+    //propInitDefaults(properties, 0, P_KBD_EUROPEAN, 0, "");
 
+    process_240p_config(game);
     // Apply some default video propeties
 #if FORCE_50HZ
     properties->emulation.vdpSyncMode = P_VDP_SYNC50HZ;
@@ -497,6 +505,41 @@ static void blueMsxRun(GameElement *game, char *game_dir)
     background->Show();
 }
 
+#define BUFFER_SIZE_GAME_DIR 256
+
+static int blueMsx_autostart(GuiManager *manager)
+{
+
+    char game_dir[BUFFER_SIZE_GAME_DIR];
+    int autostart=0;
+    GuiGameSelect *menu=NULL;
+    GameElement *game=NULL;
+
+    if(!properties->settings.autostart || properties->settings.autostart_game_title[0]=='\0' || properties->settings.autostart_game_dir[0]=='\0') {
+        printf("Checking autostart- enable:%d, dir: %s, title: %s\n", properties->settings.autostart, properties->settings.autostart_game_title, properties->settings.autostart_game_dir);
+
+        return 0;
+    }
+    
+    printf("Processing autostart: %s", properties->settings.autostart_game_title);
+    snprintf(game_dir, BUFFER_SIZE_GAME_DIR , "%s/Games/%s", GetMSXRootPath(),properties->settings.autostart_game_dir);
+    menu = new GuiGameSelect(manager);
+    if( menu->Load(game_dir, "gamelist.xml") ) {
+        game = menu->SelectByName(properties->settings.autostart_game_title);
+        if(game) {
+            printf("Auto Starting game:%s ..\n", game->GetName()); 
+            blueMsxRun(game, game_dir);
+            printf("End of game:%s. Auto shutdowning..\n", game->GetName());
+            autostart = 1;
+        }
+    }
+
+    if(menu) delete menu;
+
+    return autostart;
+
+}
+
 int main(int argc, char **argv)
 {
     // USB Gecko
@@ -551,6 +594,7 @@ int main(int argc, char **argv)
     } else
     // Init storage access
     if( SetupStorage(manager, bSDMounted, bUSBMounted) ) {
+        int autostart = 0;
         // Set current directory to the MSX-root
         archSetCurrentDirectory(GetMSXRootPath());
 
@@ -559,49 +603,55 @@ int main(int argc, char **argv)
         msgbox->Show("Please wait...");
 
         // Init blueMSX emulator
-        blueMsxInit(1);
+        blueMsxInit(0);
 
         msgbox->Remove();
 
-        printf("Starting main GUI\n");
+        autostart = blueMsx_autostart(manager);
+        if(!autostart) 
+        {
 
-        char *game_dir = NULL;
-        char sGamesPath[100];
-        sprintf(sGamesPath, "%s/Games", GetMSXRootPath());
-        GuiDirSelect *dirs = new GuiDirSelect(manager, sGamesPath, "dirlist.xml");
+            printf("Starting main GUI\n");
 
-        for(;;) {
-            // Browse directory
-            game_dir = dirs->DoModal();
-            if( game_dir == NULL ) {
-                break;
-            }
-            // Game menu
-            GameElement *game = NULL;
-            GameElement *prev;
+            char *game_dir = NULL;
+            char sGamesPath[100];
+            sprintf(sGamesPath, "%s/Games", GetMSXRootPath());
+            GuiDirSelect *dirs = new GuiDirSelect(manager, sGamesPath, "dirlist.xml");
+
             for(;;) {
-                GuiGameSelect *menu = new GuiGameSelect(manager);
-                prev = game;
-                if( menu->Load(game_dir, "gamelist.xml") ) {
-                    game = menu->DoModal(prev);
-                    if( prev != NULL ) {
-                        delete prev;
-                    }
-                }else{
-                    msgbox->Show("gamelist.xml not found!");
-                    archThreadSleep(2000);
-                    msgbox->Remove();
-                }
-                delete menu;
-
-                if( game == NULL ) {
+                // Browse directory
+                game_dir = dirs->DoModal();
+                if( game_dir == NULL ) {
                     break;
-                }else{
-                    blueMsxRun(game, game_dir);
+                }
+                // Game menu
+                GameElement *game = NULL;
+                GameElement *prev;
+                for(;;) {
+                    GuiGameSelect *menu = new GuiGameSelect(manager);
+                    prev = game;
+                    if( menu->Load(game_dir, "gamelist.xml") ) {
+                        game = menu->DoModal(prev);
+                        if( prev != NULL ) {
+                            delete prev;
+                        }
+                    }else{
+                        msgbox->Show("gamelist.xml not found!");
+                        archThreadSleep(2000);
+                        msgbox->Remove();
+                    }
+                    delete menu;
+
+                    if( game == NULL ) {
+                        break;
+                    }else{
+                        blueMsxRun(game, game_dir);
+                    }
                 }
             }
+            delete dirs;
         }
-        delete dirs;
+
 
         printf("Clean-up\n");
 

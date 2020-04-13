@@ -47,7 +47,8 @@ static int videoRender240(Video* pVideo, FrameBuffer* frame, int bitDepth, int z
     int height          = frame->lines;
     int srcWidth        = frame->maxWidth;
     int h;
-    int height_inc = (display_height<=240)?4:2;
+    //int height_inc = (display_height<=240)?4:2;
+    int height_inc = 2;
 
     //dstOffset = (dstOffset & ~3) << 2;
     pDst = (char*)pDst;// + zoom * dstOffset;

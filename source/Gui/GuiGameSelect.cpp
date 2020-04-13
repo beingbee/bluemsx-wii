@@ -79,6 +79,20 @@ bool GuiGameSelect::Load(const char *dir, const char *filename)
     return true;
 }
 
+GameElement *GuiGameSelect::SelectByName(const char *name)
+{
+    int i;
+    GameElement *game=NULL;
+
+    for(i=0; i < num_games; i++) {
+        if( strcmp(name, title_list[i])==0 ) {
+            game = games.GetGame(i);
+        }
+    }
+
+    return game;
+}
+
 GameElement *GuiGameSelect::DoModal(GameElement *select)
 {
     GameElement *returnValue = NULL;

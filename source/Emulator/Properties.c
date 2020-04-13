@@ -233,6 +233,10 @@ void propInitDefaults(Properties* properties, int langType, PropKeyboardLanguage
     strcpy(properties->settings.themeName, themeName);
 
     memset(properties->settings.windowPos, 0, sizeof(properties->settings.windowPos));
+    properties->settings.autostart            = 0;
+    properties->settings.autostart_game_dir[0] = '\0';
+    properties->settings.autostart_game_title[0] = '\0';
+
 
     properties->emulation.statsDefDir[0]     = 0;
     properties->emulation.shortcutProfile[0] = 0;
@@ -255,6 +259,7 @@ void propInitDefaults(Properties* properties, int langType, PropKeyboardLanguage
     properties->emulation.reverseEnable     = 1;
     properties->emulation.reverseMaxTime    = 15;
 
+    properties->video.display240p           = 0;  
     properties->video.monitorColor          = P_VIDEO_COLOR;
     properties->video.monitorType           = P_VIDEO_PALMON;
     properties->video.windowSize            = P_VIDEO_SIZEX2;
@@ -542,6 +547,10 @@ static void propLoad(Properties* properties)
     GET_ENUM_VALUE_2(propFile, settings, usePngScreenshots, BoolPair);
     GET_ENUM_VALUE_2(propFile, settings, portable, BoolPair);
     GET_STR_VALUE_2(propFile, settings, themeName);
+    GET_ENUM_VALUE_2(propFile, settings, autostart, BoolPair);
+    GET_STR_VALUE_2(propFile, settings, autostart_game_dir);
+    GET_STR_VALUE_2(propFile, settings, autostart_game_title);
+ 
 
     GET_ENUM_VALUE_2(propFile, emulation, ejectMediaOnExit, BoolPair);
     GET_ENUM_VALUE_2(propFile, emulation, registerFileTypes, BoolPair);
@@ -564,6 +573,7 @@ static void propLoad(Properties* properties)
     GET_ENUM_VALUE_2(propFile, emulation, reverseEnable, BoolPair);
     GET_INT_VALUE_2(propFile, emulation, reverseMaxTime);
     
+    GET_ENUM_VALUE_2(propFile, video, display240p, BoolPair);
     GET_ENUM_VALUE_2(propFile, video, monitorColor, MonitorColorPair);
     GET_ENUM_VALUE_2(propFile, video, monitorType, MonitorTypePair);
     GET_ENUM_VALUE_2(propFile, video, windowSize, WindowSizePair);
@@ -794,6 +804,9 @@ void propSave(Properties* properties)
     SET_ENUM_VALUE_2(propFile, settings, showStatePreview, YesNoPair);
     SET_ENUM_VALUE_2(propFile, settings, usePngScreenshots, YesNoPair);
     SET_ENUM_VALUE_2(propFile, settings, portable, YesNoPair);
+    SET_ENUM_VALUE_2(propFile, settings, autostart, YesNoPair);
+    SET_STR_VALUE_2(propFile, settings, autostart_game_dir);
+    SET_STR_VALUE_2(propFile, settings, autostart_game_title);
     if (appConfigGetString("singletheme", NULL) == NULL) {
         SET_STR_VALUE_2(propFile, settings, themeName);
     }
@@ -821,6 +834,7 @@ void propSave(Properties* properties)
     SET_ENUM_VALUE_2(propFile, emulation, reverseEnable, BoolPair);
     SET_INT_VALUE_2(propFile, emulation, reverseMaxTime);
     
+    SET_ENUM_VALUE_2(propFile, video, display240p, YesNoPair);
     SET_ENUM_VALUE_2(propFile, video, monitorColor, MonitorColorPair);
     SET_ENUM_VALUE_2(propFile, video, monitorType, MonitorTypePair);
     SET_INT_VALUE_2(propFile, video, contrast);

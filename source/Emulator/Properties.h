@@ -244,6 +244,7 @@ typedef struct {
 } D3DProperties;
 
 typedef struct {
+    int display240p;
     int monitorColor;
     int monitorType;
     int windowSize;
@@ -458,6 +459,9 @@ typedef struct {
 
 typedef struct {
     char language[64];
+    int autostart;
+    char autostart_game_dir[256];
+    char autostart_game_title[256];
 
     int portable;
     int disableScreensaver;

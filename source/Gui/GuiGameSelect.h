@@ -13,6 +13,7 @@ public:
     GuiGameSelect(GuiManager *man);
     virtual ~GuiGameSelect();
 
+    GameElement *SelectByName(const char *name);
     void OnSetSelected(int index, int selected);
     bool Load(const char *dir, const char *filename);
     GameElement *DoModal(GameElement *select = NULL);
